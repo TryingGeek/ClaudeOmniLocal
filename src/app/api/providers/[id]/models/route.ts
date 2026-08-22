@@ -83,10 +83,7 @@ import {
   isAutoFetchModelsEnabled,
   persistDiscoveredModels,
 } from "@/lib/providerModels/modelDiscovery";
-import {
-  buildProviderModelsUrl,
-  getDiscoveryClientVersionOptions,
-} from "./discoveryClientVersion";
+import { buildProviderModelsUrl, getDiscoveryClientVersionOptions } from "./discoveryClientVersion";
 import {
   parseGeminiModelsList,
   type GeminiDiscoveryModel,
@@ -105,6 +102,7 @@ import {
   mergeSpecialtyCatalogIntoLiveModels,
   buildOptionalBearerHeaders,
   buildNamedOpenAiStyleHeaders,
+  enrichOllamaLocalModels,
 } from "./discovery/helpers";
 import {
   fetchAntigravityDiscoveryModelsCached,
@@ -841,6 +839,8 @@ export async function GET(
             models = isNamedOpenAIStyleProvider(provider)
               ? normalizeOpenAiLikeModelsResponse(data, provider)
               : data.data || data.models || [];
+            if (provider === "ollama-local")
+              models = await enrichOllamaLocalModels(models, baseUrl, proxy, token);
             break; // Success!
           }
 
